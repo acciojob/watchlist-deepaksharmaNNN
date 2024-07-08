@@ -30,29 +30,25 @@ public class MovieRepository {
     public void saveMovieDirectorPair(String movie, String director){
         if(movieMap.containsKey(movie) && directorMap.containsKey(director)){
             // your code here
-            if(directorMovieMapping.containsKey(director)){
-                directorMovieMapping.get(director).add(movie);
-            } else {
-                List<String> movies = new ArrayList<>();
-                movies.add(movie);
-                directorMovieMapping.put(director, movies);
-            }
+            List<String> movieList = directorMovieMapping.getOrDefault(director, new ArrayList<>());
+            movieList.add(movie);
+            directorMovieMapping.put(director,movieList);
         }
     }
 
     public Movie findMovie(String movie){
         // your code here
-        return movieMap.get(movie);
+        return movieMap.getOrDefault(movie, null);
     }
 
     public Director findDirector(String director){
         // your code here
-        return directorMap.get(director);
+        return directorMap.getOrDefault(director, null);
     }
 
     public List<String> findMoviesFromDirector(String director){
         // your code here
-        return directorMovieMapping.get(director);
+        return directorMovieMapping.getOrDefault(director, null);
     }
 
     public List<String> findAllMovies(){
@@ -61,15 +57,30 @@ public class MovieRepository {
     //Delete a director and its movies from the records
     public void deleteDirector(String director){
         // your code here
-        if(directorMap.containsKey(director)){
-            directorMap.remove(director);
-            directorMovieMapping.remove(director);
+        directorMap.remove(director);
+
+        List<String> moviesToDelete =  findMoviesFromDirector(director);
+
+        for(String movie : moviesToDelete){
+            movieMap.remove(movie);
         }
+
+        directorMovieMapping.remove(director);
     }
     //Delete all directors and all movies by them from the records
     public void deleteAllDirector(){
         // your code here
         directorMap.clear();
+
+        List<String> moviesToDelete = new ArrayList<>() ;
+
+        for(List<String> movies : directorMovieMapping.values()){
+            moviesToDelete.addAll(movies);
+        }
+        for(String movie : moviesToDelete){
+            movieMap.remove(movie);
+        }
+
         directorMovieMapping.clear();
     }
 }
